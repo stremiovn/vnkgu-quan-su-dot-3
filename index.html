@@ -1,483 +1,905 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiệp Hội Bảo Vệ Môi Trường - Báo Cáo Khảo Sát U Minh Thượng</title>
-    <!-- Font Awesome cho icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Chart.js cho biểu đồ -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Cổng Thông Tin 3D GDQPAN - Đại Học Kiên Giang</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary-color: #2E7D32; /* Xanh lá đậm */
-            --secondary-color: #4CAF50; /* Xanh lá tươi */
-            --bg-color: #F1F8E9; /* Xanh nhạt nền */
-            --text-color: #333;
+            --primary-gold: #d4af37;
+            --dark-gold: #aa7c11;
+            --light-gold: #fdfaf0;
+            --gold-gradient: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%);
             --white: #ffffff;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --bg-light: #fcfcfc;
+            --text-dark: #1c2833;
+            --text-muted: #5d6d7e;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 8px rgba(212, 175, 55, 0.05);
+            --card-shadow-hover: 0 20px 40px rgba(212, 175, 55, 0.12), 0 5px 15px rgba(0, 0, 0, 0.06);
+            /* Nâng cấp hiệu ứng chuyển động mượt mà hơn */
+            --transition-smooth: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-        body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
-
-        /* Header */
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: var(--white);
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: var(--shadow);
+        /* Tối ưu hóa thanh cuộn */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        header h1 { font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; }
-        header p { font-size: 1.1rem; opacity: 0.9; }
-
-        /* Container */
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-
-        /* Dashboard Overview */
-        .overview-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+        ::-webkit-scrollbar-track {
+            background: var(--bg-light);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gold);
+            border-radius: 4px;
         }
 
-        .card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            border-left: 5px solid var(--secondary-color);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .card h3 { color: var(--primary-color); font-size: 1.1rem; margin-bottom: 10px; }
-        .card .number { font-size: 2.5rem; font-weight: bold; color: var(--text-color); }
-        .card .desc { font-size: 0.9rem; color: #666; }
-
-        /* Main Grid: Charts & Details */
-        .report-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        @media (max-width: 768px) {
-            .report-grid { grid-template-columns: 1fr; }
+        /* Hiệu ứng thanh tiến trình cuộn trang */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--gold-gradient);
+            width: 0%;
+            z-index: 9999;
+            transition: width 0.1s ease-out;
         }
 
-        .chart-box {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            height: 400px;
+        /* Hero Header hoành tráng phong cách quân ngũ */
+        .hero {
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-        }
-        
-        /* Survey Questions Section */
-        .section-title {
-            background: var(--primary-color);
-            color: var(--white);
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin: 30px 0 20px 0;
-            font-size: 1.2rem;
+            text-align: center;
+            background: radial-gradient(circle at center, #ffffff 50%, #fdf8e6 100%);
+            position: relative;
+            padding: 20px;
+            overflow: hidden;
         }
 
-        .question-block {
-            background: var(--white);
-            margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+        /* Badge ngôi sao vàng tự quay chậm */
+        .military-badge-container {
+            perspective: 600px;
+            margin-bottom: 30px;
         }
 
-        .question-text { font-weight: bold; color: var(--primary-color); margin-bottom: 10px; }
-        
-        .result-bar {
+        .military-badge {
+            width: 120px;
+            height: 120px;
+            background: var(--gold-gradient);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+            animation: rotate3D 8s infinite linear;
+            transform-style: preserve-3d;
         }
-        .result-label { width: 40%; padding-right: 10px; }
-        .progress-bg { flex-grow: 1; background: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden; position: relative; }
-        .progress-fill { height: 100%; background: var(--secondary-color); display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; color: white; font-size: 0.8rem; transition: width 1s ease-in-out; }
-        .result-count { width: 50px; text-align: right; font-weight: bold; }
 
-        /* Participant List Table */
-        .participant-list {
+        .military-badge-inner {
+            width: 70px;
+            height: 70px;
             background: var(--white);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            overflow-x: auto;
-            max-height: 500px;
-            overflow-y: scroll;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateZ(15px);
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: var(--primary-color); color: var(--white); position: sticky; top: 0; }
-        tr:hover { background-color: #f1f1f1; }
-        
-        .tag {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
+        .military-badge-inner i {
+            color: var(--dark-gold);
+            font-size: 1.5rem;
         }
-        .tag-good { background-color: #e8f5e9; color: #2e7d32; }
-        .tag-bad { background-color: #ffebee; color: #c62828; }
-        .tag-neutral { background-color: #fff3e0; color: #ef6c00; }
 
-        /* Footer */
-        footer {
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .hero h1 span {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        /* Mũi tên chỉ hướng cuộn nhấp nháy */
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            font-size: 1.5rem;
+            color: var(--primary-gold);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        /* Layout Container chính */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        /* HỆ THỐNG HIỆU ỨNG CUỘN SIÊU MƯỢT (OPTIMIZED SMOOTH REVEAL) */
+        .reveal-3d-left {
+            opacity: 0;
+            transform: translateX(-50px) scale(0.97);
+            will-change: transform, opacity;
+            transition: var(--transition-smooth);
+        }
+
+        .reveal-3d-right {
+            opacity: 0;
+            transform: translateX(50px) scale(0.97);
+            will-change: transform, opacity;
+            transition: var(--transition-smooth);
+        }
+
+        .reveal-3d-up {
+            opacity: 0;
+            transform: translateY(60px) scale(0.98);
+            will-change: transform, opacity;
+            transition: var(--transition-smooth);
+        }
+
+        /* Trạng thái kích hoạt khi lướt tới */
+        .reveal-3d-left.active,
+        .reveal-3d-right.active,
+        .reveal-3d-up.active {
+            opacity: 1;
+            transform: translateX(0) translateY(0) scale(1);
+        }
+
+        /* Section Title */
+        .section-header {
             text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-            color: #666;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--text-dark);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gold-gradient);
+            border-radius: 2px;
+        }
+
+        /* Grid hệ thống thông tin */
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        /* Thẻ Card chuẩn tinh tế - Loại bỏ lắc xoay 3D, giữ nâng nhẹ tự nhiên */
+        .card-3d {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            position: relative;
+            transition: var(--transition-fast);
+        }
+
+        .card-3d:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .card-inner-3d {
+            /* Giữ nguyên cấu trúc */
+        }
+
+        .card-icon {
+            width: 65px;
+            height: 65px;
+            background: var(--light-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .card-icon i {
+            color: var(--dark-gold);
+            font-size: 1.8rem;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f1f1;
+            padding-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .info-list li span.label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-list li span.value {
+            color: var(--dark-gold);
+            font-weight: 700;
+        }
+
+        /* BỘ CÔNG CỤ TÍNH TOÁN CHI PHÍ */
+        .calculator-3d {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 40px;
+            margin-bottom: 80px;
+            transition: var(--transition-fast);
+        }
+
+        .calculator-3d:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calc-header {
+            margin-bottom: 30px;
+        }
+
+        .calc-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .calc-header p {
+            color: var(--text-muted);
             font-size: 0.9rem;
-            border-top: 1px solid #ddd;
+        }
+
+        .calc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid transparent;
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .calc-item:hover {
+            border-color: var(--primary-gold);
+            background: #fffdf5;
+            transform: translateY(-2px);
+        }
+
+        .calc-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calc-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary-gold);
+            cursor: pointer;
+        }
+
+        .calc-details span {
+            display: block;
+        }
+
+        .calc-details .title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-dark);
+        }
+
+        .calc-details .sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .calc-price {
+            font-weight: 700;
+            color: var(--dark-gold);
+        }
+
+        .input-days {
+            width: 65px;
+            padding: 5px;
+            border: 1px solid var(--primary-gold);
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 700;
+            margin-left: 10px;
+            background: var(--white);
+        }
+
+        /* Màn hình hiển thị kết quả phong cách viễn tưởng */
+        .result-screen-3d {
+            background: radial-gradient(circle at top left, #2c3e50, #1a252f);
+            border-radius: 15px;
+            padding: 40px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border-top: 3px solid var(--primary-gold);
+            width: 100%;
+        }
+
+        .result-screen-3d::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, transparent 100%);
+            pointer-events: none;
+            border-radius: 15px;
+        }
+
+        .result-title {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary-gold);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-val {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .result-note {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* THIẾT KẾ BẢNG BIỂU RESPONSIVE PC & MOBILE */
+        .table-section-3d {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 40px;
+            margin-bottom: 80px;
+            transition: var(--transition-fast);
+        }
+
+        .table-section-3d:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        table th, table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        table th {
+            background-color: var(--light-gold);
+            color: var(--dark-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        table tbody tr {
+            transition: var(--transition-fast);
+        }
+
+        table tbody tr:hover {
+            background-color: #fffdf5;
+        }
+
+        /* Chế độ bảng trên Mobile */
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            table tr {
+                margin-bottom: 20px;
+                border: 1px solid rgba(212, 175, 55, 0.3);
+                border-radius: 12px;
+                padding: 10px;
+                background: var(--white);
+            }
+
+            table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border-bottom: 1px dashed #eee;
+            }
+
+            table td:last-child {
+                border-bottom: none;
+            }
+
+            table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 45%;
+                text-align: left;
+                font-weight: 700;
+                color: var(--dark-gold);
+            }
+        }
+
+        /* Footer bản quyền sang trọng */
+        footer {
+            background: #111;
+            color: #888;
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 3px solid var(--primary-gold);
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        footer a {
+            color: var(--primary-gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ANIMATIONS */
+        @keyframes rotate3D {
+            0% { transform: rotateY(0deg) rotateX(10deg); }
+            50% { transform: rotateY(180deg) rotateX(-10deg); }
+            100% { transform: rotateY(360deg) rotateX(10deg); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-15px); }
+            60% { transform: translateY(-7px); }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1><i class="fas fa-leaf"></i> Hiệp Hội Bảo Vệ Môi Trường</h1>
-        <p>Báo cáo kết quả khảo sát tình hình môi trường tại U Minh Thượng</p>
-    </header>
+    <!-- Thanh tiến trình cuộn trang -->
+    <div class="scroll-progress" id="scroll-bar"></div>
 
-    <div class="container">
-        <!-- Overview -->
-        <div class="overview-cards">
-            <div class="card">
-                <h3>Tổng số phiếu</h3>
-                <div class="number">30</div>
-                <div class="desc">Người dân ngẫu nhiên</div>
+    <!-- HERO SECTION VỚI HIỆU ỨNG 3D -->
+    <section class="hero">
+        <div class="military-badge-container">
+            <div class="military-badge">
+                <div class="military-badge-inner">
+                    <i class="fa-solid fa-star"></i>
+                </div>
             </div>
-            <div class="card">
-                <h3>Khu vực</h3>
-                <div class="number" style="font-size: 1.5rem">U Minh Thượng</div>
-                <div class="desc">Các xã: An Minh Bắc, Minh Thuận...</div>
+        </div>
+        <h1>Giáo Dục Quốc Phòng <span>An Ninh</span></h1>
+        <p>Hệ thống tra cứu thông tin tương tác và tính toán chi phí thực tế cho sinh viên Trường Đại học Kiên Giang năm học 2025 - 2026.</p>
+        <i class="fa-solid fa-chevron-down scroll-down" onclick="scrollToContent()"></i>
+    </section>
+
+    <!-- CONTENT CONTAINER -->
+    <div class="container" id="main-content">
+
+        <!-- SECTION 1: CÁC KHOẢN PHÍ & BIÊN CHẾ -->
+        <div class="section-header reveal-3d-up">
+            <h2>Hệ Thống Chỉ Tiêu Quy Định</h2>
+        </div>
+
+        <div class="grid-info">
+            <!-- Cọc 1: Định Mức Phí -->
+            <div class="card-3d reveal-3d-left">
+                <div class="card-inner-3d">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <div class="card-title">Định Mức Phí Quy Định</div>
+                    <ul class="info-list">
+                        <li><span class="label">Tiền ăn học tập/ngày</span><span class="value">80.000 đ</span></li>
+                        <li><span class="label">Phòng ở, điện, nước/khóa</span><span class="value">200.000 đ</span></li>
+                        <li><span class="label">Bộ quân phục GDQPAN</span><span class="value">60.000 đ</span></li>
+                        <li><span class="label">Combo nón, mùng, chiếu...</span><span class="value">140.000 đ</span></li>
+                        <li><span class="label">Phí ký quỹ bảo quản tài sản</span><span class="value">600.000 đ</span></li>
+                    </ul>
+                </div>
             </div>
-            <div class="card">
-                <h3>Độ tuổi phổ biến</h3>
-                <div class="number">30 - 50</div>
-                <div class="desc">Chiếm đa số (Giả lập)</div>
-            </div>
-            <div class="card">
-                <h3>Xu hướng chính</h3>
-                <div class="number" style="font-size: 1.5rem; color: var(--primary-color)">Tích cực</div>
-                <div class="desc">Ý thức bảo vệ môi trường cao</div>
+
+            <!-- Cọc 2: Biên Chế Mô Hình Quân Ngũ -->
+            <div class="card-3d reveal-3d-right">
+                <div class="card-inner-3d">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-person-military-pointing"></i>
+                    </div>
+                    <div class="card-title">Biên Chế Quân Sự</div>
+                    <ul class="info-list">
+                        <li><span class="label">Mô hình tổ chức hành chính</span><span class="value">Mô hình Đại Đội</span></li>
+                        <li><span class="label">Cơ cấu biên chế đợt học</span><span class="value">03 Đại đội / Đợt</span></li>
+                        <li><span class="label">Cơ cấu một đại đội</span><span class="value">03 Trung đội</span></li>
+                        <li><span class="label">Cơ cấu một trung đội</span><span class="value">03 Tiểu đội</span></li>
+                        <li><span class="label">Sinh hoạt tập trung hoàn toàn</span><span class="value">4 Tuần liền mạch</span></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="report-grid">
-            <div class="chart-box">
-                <h4 style="margin-bottom:15px">Cơ cấu độ tuổi người tham gia</h4>
-                <canvas id="ageChart"></canvas>
-            </div>
-            <div class="chart-box">
-                <h4 style="margin-bottom:15px">Mức độ sẵn sàng tham gia BVMT</h4>
-                <canvas id="willingnessChart"></canvas>
+        <!-- SECTION 2: BỘ TÍNH TIỀN TƯƠNG TÁC -->
+        <div class="section-header reveal-3d-up">
+            <h2>Công Cụ Tính Chi Phí Thực Tế</h2>
+        </div>
+
+        <div class="calculator-3d reveal-3d-up">
+            <div class="calc-grid">
+                <!-- Bên Trái: Danh sách chọn phí -->
+                <div>
+                    <div class="calc-header">
+                        <h3>Tùy Biến Chi Phí Cá Nhân</h3>
+                        <p>Tích chọn các dịch vụ và điều chỉnh số ngày để nhận báo giá tức thì.</p>
+                    </div>
+
+                    <!-- Tiền Ăn -->
+                    <div class="calc-item" onclick="toggleCheckbox('chk-eat')">
+                        <div class="calc-left">
+                            <input type="checkbox" id="chk-eat" class="calc-checkbox" checked onchange="calculate()">
+                            <div class="calc-details">
+                                <span class="title">Tiền ăn tập trung hằng ngày</span>
+                                <span class="sub">Số ngày ăn thực tế: <input type="number" id="days-eat" class="input-days" value="28" min="1" onclick="event.stopPropagation()" oninput="calculate()"> ngày</span>
+                            </div>
+                        </div>
+                        <span class="calc-price">80.000 đ/ngày</span>
+                    </div>
+
+                    <!-- Phòng ở -->
+                    <div class="calc-item" onclick="toggleCheckbox('chk-room')">
+                        <div class="calc-left">
+                            <input type="checkbox" id="chk-room" class="calc-checkbox" checked onchange="calculate()">
+                            <div class="calc-details">
+                                <span class="title">Phòng Ký Túc Xá, Điện, Nước</span>
+                                <span class="sub">Thời gian trọn đợt 4 tuần học</span>
+                            </div>
+                        </div>
+                        <span class="calc-price">200.000 đ</span>
+                    </div>
+
+                    <!-- Trang phục -->
+                    <div class="calc-item" onclick="toggleCheckbox('chk-clothes')">
+                        <div class="calc-left">
+                            <input type="checkbox" id="chk-clothes" class="calc-checkbox" checked onchange="calculate()">
+                            <div class="calc-details">
+                                <span class="title">Bộ quân phục GDQPAN chính khóa</span>
+                                <span class="sub">Nhận và trả lại sau khi hoàn thành đợt học</span>
+                            </div>
+                        </div>
+                        <span class="calc-price">60.000 đ</span>
+                    </div>
+
+                    <!-- Combo mùng mền -->
+                    <div class="calc-item" onclick="toggleCheckbox('chk-combo')">
+                        <div class="calc-left">
+                            <input type="checkbox" id="chk-combo" class="calc-checkbox" checked onchange="calculate()">
+                            <div class="calc-details">
+                                <span class="title">Combo Nón, Mùng, Mền, Gối, Chiếu</span>
+                                <span class="sub">Vật tư dã ngoại trang bị tận phòng</span>
+                            </div>
+                        </div>
+                        <span class="calc-price">140.000 đ</span>
+                    </div>
+
+                    <!-- Tiền cọc tài sản -->
+                    <div class="calc-item" onclick="toggleCheckbox('chk-deposit')">
+                        <div class="calc-left">
+                            <input type="checkbox" id="chk-deposit" class="calc-checkbox" checked onchange="calculate()">
+                            <div class="calc-details">
+                                <span class="title">Tiền bảo quản tài sản (Cọc hoàn trả)</span>
+                                <span class="sub">Sẽ hoàn trả 100% khi sinh viên trả đồ</span>
+                            </div>
+                        </div>
+                        <span class="calc-price">600.000 đ</span>
+                    </div>
+                </div>
+
+                <!-- Bên Phải: Màn hình hiển thị kết quả -->
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <div class="result-screen-3d">
+                        <div class="result-title">Tổng Chi Phí Dự Tính</div>
+                        <div class="result-val" id="total-price">0 đ</div>
+                        <div class="result-note">
+                            Bạn cần nộp trước <strong style="color: var(--primary-gold);" id="init-price">0 đ</strong> khi tập trung.<br>
+                            Sau khi kết thúc đợt học và trả lại quân tư trang đầy đủ, bạn sẽ được nhận lại <strong style="color: #2ecc71;">600.000 đ</strong> tiền ký quỹ bảo quản tài sản.
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Detailed Survey Stats -->
-        <div id="survey-results">
-            <!-- JS will render questions here -->
+        <!-- SECTION 3: KẾ HOẠCH DỰ KIẾN (BẢNG RESPONSIVE PC & MOBILE) -->
+        <div class="section-header reveal-3d-up">
+            <h2>Kế Hoạch Giảng Dạy Các Đợt</h2>
         </div>
 
-        <!-- Participant List -->
-        <div class="section-title"><i class="fas fa-users"></i> Danh sách người dân tham gia khảo sát</div>
-        <div class="participant-list">
+        <div class="table-section-3d reveal-3d-up">
             <table>
                 <thead>
                     <tr>
-                        <th>STT</th>
-                        <th>Họ và Tên</th>
-                        <th>Tuổi</th>
-                        <th>Giới tính</th>
-                        <th>Nghề nghiệp</th>
-                        <th>Khu vực (Xã)</th>
-                        <th>Ý thức</th>
+                        <th>Học Kỳ</th>
+                        <th>Đợt Học</th>
+                        <th>Thời Gian Giảng Dạy</th>
+                        <th>Danh Sách Ngành Học Dự Kiến</th>
                     </tr>
                 </thead>
-                <tbody id="participant-table-body">
-                    <!-- JS generated rows -->
+                <tbody>
+                    <tr>
+                        <td data-label="Học Kỳ">Học kỳ 1</td>
+                        <td data-label="Đợt Học">Đợt 1</td>
+                        <td data-label="Thời Gian">11/08/2025 đến 07/09/2025</td>
+                        <td data-label="Ngành Dự Kiến">Công nghệ Kỹ thuật Xây dựng (90 SV), Ô tô (180 SV), Điều khiển & Tự động hóa (20 SV)</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Học Kỳ">Học kỳ 1</td>
+                        <td data-label="Đợt Học">Đợt 2</td>
+                        <td data-label="Thời Gian">29/09/2025 đến 26/10/2025</td>
+                        <td data-label="Ngành Dự Kiến">Sư phạm Toán, Du lịch, Giáo dục Tiểu học, Chăn nuôi, Thủy sản, Khoa học cây trồng...</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Học Kỳ">Học kỳ 2</td>
+                        <td data-label="Đợt Học">Đợt 1</td>
+                        <td data-label="Thời Gian">17/11/2025 đến 14/12/2025</td>
+                        <td data-label="Ngành Dự Kiến">Luật (150 SV), Quản lý tài nguyên môi trường, Công nghệ thực phẩm...</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Học Kỳ">Học kỳ 2</td>
+                        <td data-label="Đợt Học">Đợt 2</td>
+                        <td data-label="Thời Gian">15/12/2025 đến 11/01/2026</td>
+                        <td data-label="Ngành Dự Kiến">Ngôn ngữ Anh (120 SV), Công nghệ Thông tin (200 SV) - Khóa 11</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 4: BẢNG GIÁ ĐỀN BÙ VẬT TƯ -->
+        <div class="section-header reveal-3d-up">
+            <h2>Biểu Giá Đền Bù Hư Hỏng Vật Tư</h2>
+        </div>
+
+        <div class="table-section-3d reveal-3d-up">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã Số</th>
+                        <th>Tên Loại Thiết Bị Quân Tư Trang</th>
+                        <th>Giá Trị Đền Bù Thực Tế</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="Mã Số">01</td>
+                        <td data-label="Tên Loại Vật Tư">Bộ quần áo chiến sĩ chuyên dụng</td>
+                        <td data-label="Mức Đền Bù">600.000 đ / bộ</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Mã Số">02</td>
+                        <td data-label="Tên Loại Vật Tư">Mền quân đội chuyên dụng</td>
+                        <td data-label="Mức Đền Bù">250.000 đ / cái</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Mã Số">03</td>
+                        <td data-label="Tên Loại Vật Tư">Gối cá nhân dã ngoại</td>
+                        <td data-label="Mức Đền Bù">100.000 đ / cái</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Mã Số">04</td>
+                        <td data-label="Tên Loại Vật Tư">Mùng chống muỗi quân đội</td>
+                        <td data-label="Mức Đền Bù">90.000 đ / cái</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Mã Số">05</td>
+                        <td data-label="Tên Loại Vật Tư">Chiếu cá nhân quân sự</td>
+                        <td data-label="Mức Đền Bù">60.000 đ / chiếc</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Mã Số">06</td>
+                        <td data-label="Tên Loại Vật Tư">Mũ tai bèo dã ngoại</td>
+                        <td data-label="Mức Đền Bù">50.000 đ / cái</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
     </div>
 
+    <!-- FOOTER -->
     <footer>
-        <p>&copy; 2025 Hiệp Hội Bảo Vệ Môi Trường U Minh Thượng. Dữ liệu được giả lập cho mục đích demo.</p>
+        <p>© 2025 - 2026 Cổng thông tin GDQPAN - Trường Đại học Kiên Giang</p>
+        <p>Hệ thống được lập trình hiển thị tương tác mượt mà đa nền tảng.</p>
     </footer>
 
+    <!-- JAVASCRIPT XỬ LÝ TOÀN BỘ HIỆU ỨNG VÀ BỘ TÍNH -->
     <script>
-        // --- CẤU HÌNH DỮ LIỆU GIẢ LẬP ---
+        // 1. Scroll-Down Click
+        function scrollToContent() {
+            document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+        }
 
-        const LOCATIONS = ["Xã An Minh Bắc", "Xã Minh Thuận", "Thị trấn Cạnh Đền", "Xã Thạnh Yên", "Xã Hòa Chánh"];
-        const LAST_NAMES = ["Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ"];
-        const MIDDLE_NAMES_MALE = ["Văn", "Hữu", "Thanh", "Minh", "Quốc", "Chí"];
-        const MIDDLE_NAMES_FEMALE = ["Thị", "Ngọc", "Thanh", "Mai", "Kim", "Thu"];
-        const FIRST_NAMES_MALE = ["Hùng", "Cường", "Tuấn", "Kiệt", "Dũng", "Nam", "Hải", "Sơn", "Tùng", "Long"];
-        const FIRST_NAMES_FEMALE = ["Lan", "Huệ", "Cúc", "Trúc", "Mai", "Hương", "Thảo", "Vy", "Hằng", "Nhung"];
+        // 2. Chức năng tính toán chi phí tự động tích hợp
+        function formatMoney(val) {
+            return val.toLocaleString('vi-VN') + " đ";
+        }
+
+        function toggleCheckbox(id) {
+            const chk = document.getElementById(id);
+            chk.checked = !chk.checked;
+            calculate();
+        }
+
+        function calculate() {
+            let total = 0;
+            let deposit = 0;
+
+            // Tính tiền ăn theo số ngày
+            if (document.getElementById('chk-eat').checked) {
+                let days = parseInt(document.getElementById('days-eat').value) || 0;
+                if (days < 0) days = 0;
+                total += days * 80000;
+            }
+
+            // Phòng ở
+            if (document.getElementById('chk-room').checked) {
+                total += 200000;
+            }
+
+            // Trang phục
+            if (document.getElementById('chk-clothes').checked) {
+                total += 60000;
+            }
+
+            // Combo đồ dùng mùng mền
+            if (document.getElementById('chk-combo').checked) {
+                total += 140000;
+            }
+
+            // Tiền cọc tài sản
+            if (document.getElementById('chk-deposit').checked) {
+                deposit = 600000;
+            }
+
+            const grandTotal = total + deposit;
+            document.getElementById('total-display') ? document.getElementById('total-display').innerText = formatMoney(grandTotal) : null;
+            document.getElementById('total-price').innerText = formatMoney(grandTotal);
+            document.getElementById('init-price').innerText = formatMoney(grandTotal);
+        }
+
+        // 3. HIỆU ỨNG CUỘN TRANG MƯỢT MÀ (IntersectionObserver với Hardware Acceleration)
+        const observerOptions = {
+            threshold: 0.05, // Giảm ngưỡng để hiệu ứng phản hồi sớm và mượt hơn
+            rootMargin: '0px 0px -80px 0px'
+        };
+
+        const revealElements = document.querySelectorAll('[class*="reveal-3d-"]');
         
-        const JOBS = ["Nông nghiệp", "Nông nghiệp", "Nông nghiệp", "Buôn bán", "Công nhân", "Giáo viên", "Cán bộ xã", "Nội trợ"];
-
-        // Helper: Random có trọng số (để chỉnh tỉ lệ câu trả lời)
-        function weightedRandom(items, weights) {
-            let i;
-            for (i = 0; i < weights.length; i++)
-                weights[i] += weights[i - 1] || 0;
-            var random = Math.random() * weights[weights.length - 1];
-            for (i = 0; i < weights.length; i++)
-                if (weights[i] > random)
-                    return items[i];
-            return items[items.length - 1]; // Fallback
-        }
-
-        // Helper: Sinh tuổi (Ưu tiên 30-50)
-        function generateAge() {
-            const rand = Math.random();
-            if (rand < 0.6) return Math.floor(Math.random() * (50 - 30 + 1)) + 30; // 60% từ 30-50
-            if (rand < 0.8) return Math.floor(Math.random() * (60 - 51 + 1)) + 51; // 20% từ 51-60
-            return Math.floor(Math.random() * (29 - 16 + 1)) + 16; // 20% từ 16-29
-        }
-
-        // --- CẤU TRÚC CÂU HỎI VÀ TRỌNG SỐ ---
-        const QUESTIONS_CONFIG = [
-            {
-                id: "q_air_quality",
-                section: "II. Đánh giá môi trường",
-                text: "Chất lượng không khí ở khu vực:",
-                options: ["Rất tốt", "Tốt", "Bình thường", "Ô nhiễm"],
-                weights: [0.1, 0.4, 0.4, 0.1] // Nghiêng về Tốt/Bình thường
-            },
-            {
-                id: "q_water_source",
-                section: "II. Đánh giá môi trường",
-                text: "Nguồn nước sử dụng chính:",
-                options: ["Nước máy", "Nước giếng", "Nước kênh rạch", "Kết hợp"],
-                weights: [0.3, 0.5, 0.1, 0.1] // U Minh Thượng hay dùng nước giếng/máy
-            },
-            {
-                id: "q_trash_method",
-                section: "II. Đánh giá môi trường",
-                text: "Xử lý rác sinh hoạt:",
-                options: ["Xe rác thu gom", "Đốt rác", "Chôn lấp trong vườn", "Vứt xuống kênh"],
-                weights: [0.3, 0.5, 0.15, 0.05] // Vùng quê vẫn còn đốt rác nhiều
-            },
-            {
-                id: "q_classify",
-                section: "II. Đánh giá môi trường",
-                text: "Có phân loại rác không:",
-                options: ["Có", "Không"],
-                weights: [0.7, 0.3] // Nghiêng về chấp hành
-            },
-            {
-                id: "q_health",
-                section: "III. Ảnh hưởng sức khỏe",
-                text: "Bệnh thường gặp trong gia đình:",
-                options: ["Không có", "Ho/Viêm họng", "Dị ứng da", "Tiêu chảy"],
-                weights: [0.5, 0.3, 0.1, 0.1]
-            },
-            {
-                id: "q_awareness",
-                section: "IV. Nhận thức",
-                text: "Biết tác hại đốt/xả rác:",
-                options: ["Biết rõ", "Biết sơ sơ", "Không biết"],
-                weights: [0.8, 0.15, 0.05] // Ý thức cao
-            },
-            {
-                id: "q_willingness",
-                section: "V. Ý kiến & Đề xuất",
-                text: "Sẵn sàng tham gia hoạt động BVMT:",
-                options: ["Rất sẵn sàng", "Có thể", "Không quan tâm"],
-                weights: [0.6, 0.3, 0.1] // Nghiêng về chấp hành
-            }
-        ];
-
-        // --- TẠO DỮ LIỆU ---
-        let participants = [];
-        const TOTAL_PEOPLE = 30;
-
-        function generateData() {
-            for(let i=0; i<TOTAL_PEOPLE; i++) {
-                // 1. Thông tin cá nhân
-                let gender = Math.random() > 0.5 ? "Nam" : "Nữ";
-                let lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
-                let middleName = gender === "Nam" 
-                    ? MIDDLE_NAMES_MALE[Math.floor(Math.random() * MIDDLE_NAMES_MALE.length)] 
-                    : MIDDLE_NAMES_FEMALE[Math.floor(Math.random() * MIDDLE_NAMES_FEMALE.length)];
-                let firstName = gender === "Nam"
-                    ? FIRST_NAMES_MALE[Math.floor(Math.random() * FIRST_NAMES_MALE.length)]
-                    : FIRST_NAMES_FEMALE[Math.floor(Math.random() * FIRST_NAMES_FEMALE.length)];
-                
-                let person = {
-                    id: i + 1,
-                    name: `${lastName} ${middleName} ${firstName}`,
-                    gender: gender,
-                    age: generateAge(),
-                    job: JOBS[Math.floor(Math.random() * JOBS.length)],
-                    location: LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)],
-                    answers: {}
-                };
-
-                // 2. Tạo câu trả lời
-                QUESTIONS_CONFIG.forEach(q => {
-                    person.answers[q.id] = weightedRandom(q.options, [...q.weights]);
-                });
-
-                participants.push(person);
-            }
-        }
-
-        // --- HIỂN THỊ DỮ LIỆU ---
-
-        function renderStats() {
-            const container = document.getElementById('survey-results');
-            
-            // Nhóm theo section để hiển thị đẹp hơn
-            let currentSection = "";
-
-            QUESTIONS_CONFIG.forEach(q => {
-                // Tiêu đề section
-                if (q.section !== currentSection) {
-                    currentSection = q.section;
-                    const sectionHeader = document.createElement('div');
-                    sectionHeader.className = 'section-title';
-                    sectionHeader.innerText = currentSection;
-                    container.appendChild(sectionHeader);
-                }
-
-                // Tính toán số lượng
-                let counts = {};
-                q.options.forEach(opt => counts[opt] = 0);
-                participants.forEach(p => {
-                    counts[p.answers[q.id]]++;
-                });
-
-                // HTML cho câu hỏi
-                const block = document.createElement('div');
-                block.className = 'question-block';
-                
-                let html = `<div class="question-text">${q.text}</div>`;
-                
-                q.options.forEach(opt => {
-                    let count = counts[opt];
-                    let percent = Math.round((count / TOTAL_PEOPLE) * 100);
-                    html += `
-                        <div class="result-bar">
-                            <div class="result-label">${opt}</div>
-                            <div class="progress-bg">
-                                <div class="progress-fill" style="width: ${percent}%">${percent}%</div>
-                            </div>
-                            <div class="result-count">(${count})</div>
-                        </div>
-                    `;
-                });
-
-                block.innerHTML = html;
-                container.appendChild(block);
-            });
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('participant-table-body');
-            participants.forEach(p => {
-                let awarenessTag = "";
-                // Logic đơn giản để gắn tag ý thức dựa trên câu trả lời
-                if(p.answers['q_willingness'] === "Rất sẵn sàng") {
-                    awarenessTag = '<span class="tag tag-good">Tích cực</span>';
-                } else if (p.answers['q_willingness'] === "Không quan tâm") {
-                    awarenessTag = '<span class="tag tag-bad">Thờ ơ</span>';
-                } else {
-                    awarenessTag = '<span class="tag tag-neutral">Bình thường</span>';
-                }
-
-                const row = `
-                    <tr>
-                        <td>${p.id}</td>
-                        <td>${p.name}</td>
-                        <td>${p.age}</td>
-                        <td>${p.gender}</td>
-                        <td>${p.job}</td>
-                        <td>${p.location}</td>
-                        <td>${awarenessTag}</td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        }
-
-        function renderCharts() {
-            // Chart 1: Age Groups
-            let ageGroups = { "16-30": 0, "31-50": 0, "Trên 50": 0 };
-            participants.forEach(p => {
-                if(p.age <= 30) ageGroups["16-30"]++;
-                else if(p.age <= 50) ageGroups["31-50"]++;
-                else ageGroups["Trên 50"]++;
-            });
-
-            new Chart(document.getElementById('ageChart'), {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(ageGroups),
-                    datasets: [{
-                        data: Object.values(ageGroups),
-                        backgroundColor: ['#81C784', '#2E7D32', '#A5D6A7']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Chart 2: Willingness
-            let willingCounts = {};
-            // Lấy options từ config
-            let qWilling = QUESTIONS_CONFIG.find(q => q.id === 'q_willingness');
-            qWilling.options.forEach(opt => willingCounts[opt] = 0);
-            
-            participants.forEach(p => {
-                willingCounts[p.answers['q_willingness']]++;
-            });
-
-            new Chart(document.getElementById('willingnessChart'), {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(willingCounts),
-                    datasets: [{
-                        label: 'Số người',
-                        data: Object.values(willingCounts),
-                        backgroundColor: ['#4CAF50', '#FFC107', '#E57373']
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
                 }
             });
-        }
+        }, observerOptions);
 
-        // --- CHẠY CHƯƠNG TRÌNH ---
-        generateData();
-        renderStats();
-        renderCharts();
-        renderTable();
+        revealElements.forEach(el => revealObserver.observe(el));
 
+        // 4. Cập nhật thanh tiến trình cuộn trang
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scroll-bar').style.width = scrolled + '%';
+        });
+
+        // Chạy lần đầu
+        window.onload = () => {
+            calculate();
+        };
     </script>
 </body>
 </html>
